@@ -73,12 +73,6 @@ with st.sidebar:
         st.warning("먼저 CSV 파일을 업로드해주세요")
         analyze_btn = False
 
-# 데이터 파일 미리보기
-# (dialog 데코레이터 사용으로 제거됨)
-
-# 불용어 설정
-# (dialog 데코레이터 사용으로 제거됨)
-
 # 분석 처리
 if data_file and analyze_btn:
 
