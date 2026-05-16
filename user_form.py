@@ -13,7 +13,7 @@ with st.form(key="user_input_form"):
     submit_button = st.form_submit_button(label="제출")
 
 if submit_button:
-    if not name.strip(): # strip() 메서드는 문자열 양쪽의 공백을 제거합니다. 
+    if not name.strip(): # 공백만 잔뜩 쳐도 통과돼버려서, strip()으로 진짜 빈값인지 확인
         st.error("이름을 입력해야 제출할 수 있습니다.")
     elif not agree:
         st.error("약관에 동의해야 제출할 수 있습니다.")
