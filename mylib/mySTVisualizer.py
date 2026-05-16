@@ -20,50 +20,33 @@ def visualize_barhgraph(counter, num_words, title=None, xlabel=None, ylabel=None
     x_list = [word for word, count in wordcount_list]
     y_list = [count for word, count in wordcount_list]
 
-    # 폰트는 plt로 그리기 전에 잡아둬야 그래프에 반영됨.
-    # generate 다 끝난 뒤에 설정하면 안 먹혀서 순서 때문에 한참 헤맸음.
+    # 폰트는 그리기 전에 잡아둬야 그래프에 반영됨 (끝나고 설정하면 안 먹힘)
     if font_path:
         set_korean_font_for_matplotlib(font_path)
 
-    # 작은 그래프랑 expander 안의 큰 그래프 코드가 완전히 똑같아서
-    # 통째로 복붙해뒀었는데, 한쪽만 고치면 어긋나서 함수로 한 번만 그림.
-    def draw(figsize):
-        plt.figure(figsize=figsize)
-        # barh는 아래에서 위로 쌓여서 그냥 그리면 1등이 맨 밑으로 감.
-        # [::-1]로 뒤집어 줘야 1등이 맨 위로 옴.
-        plt.barh(x_list[::-1], y_list[::-1])
-        if title: plt.title(title)
-        if xlabel: plt.xlabel(xlabel)
-        if ylabel: plt.ylabel(ylabel)
-        plt.tight_layout()
-        st.pyplot(plt)
-        # pyplot이 만든 figure를 안 닫으면 계속 메모리에 들고 있어서
-        # 분석을 반복할수록 figure가 쌓임(경고도 뜸). 그려준 뒤 바로 닫음.
-        plt.close()
-
-    draw((6, 4))
-    with st.expander("📊 그래프 크게 보기"):
-        draw((12, 8))
+    plt.figure(figsize=(6, 4))
+    # barh는 아래에서 위로 쌓여서, [::-1]로 뒤집어야 1등이 맨 위로 옴
+    plt.barh(x_list[::-1], y_list[::-1])
+    if title: plt.title(title)
+    if xlabel: plt.xlabel(xlabel)
+    if ylabel: plt.ylabel(ylabel)
+    plt.tight_layout()
+    st.pyplot(plt)
+    # figure 안 닫으면 pyplot이 계속 들고 있어서 분석 반복하면 쌓임 (경고도 뜸)
+    plt.close()
 
 def visualize_wordcloud(counter, num_words, font_path):
     """워드 클라우드 시각화"""
-    # WordCloud는 font_path를 안 주면 한글이 다 네모(□)로 깨져 나옴.
-    # 작은 거/큰 거 만드는 코드가 거의 같아서, 해상도만 인자로 받아
-    # 함수로 한 번만 만들게 정리(여기도 expander에 복붙돼 있었음).
-    def draw(wc_size, figsize):
-        wc = WordCloud(
-            font_path=font_path,
-            max_words=num_words,
-            width=wc_size[0],
-            height=wc_size[1],
-            background_color='ivory'
-        ).generate_from_frequencies(counter)
-        plt.figure(figsize=figsize)
-        plt.imshow(wc)
-        plt.axis('off')  # 워드클라우드라 축 눈금은 필요 없음
-        st.pyplot(plt)
-        plt.close()  # 위 막대그래프랑 같은 이유 - figure 누적 막으려고 닫음
-
-    draw((400, 300), (6, 4))
-    with st.expander("☁️ 워드클라우드 크게 보기"):
-        draw((800, 600), (10, 6))
+    # WordCloud는 font_path를 안 주면 한글이 다 네모(□)로 깨져 나옴
+    wc = WordCloud(
+        font_path=font_path,
+        max_words=num_words,
+        width=400,
+        height=300,
+        background_color='ivory'
+    ).generate_from_frequencies(counter)
+    plt.figure(figsize=(6, 4))
+    plt.imshow(wc)
+    plt.axis('off')  # 워드클라우드라 축 눈금은 필요 없음
+    st.pyplot(plt)
+    plt.close()  # 막대그래프랑 같은 이유 - figure 누적 막으려고 닫음

@@ -87,6 +87,11 @@ with st.sidebar:
         analyze_btn = False
 
 # 분석 처리
+# Streamlit은 버튼 누를 때마다 스크립트를 처음부터 다시 돌림. 그래서 결과를
+# 여기서 바로 그리기만 하면, "데이터 확인"이나 "불용어 설정" 같은 다른 버튼을
+# 누른 순간 analyze_btn이 False가 되면서 그래프가 통째로 사라졌음.
+# → 분석은 버튼 눌렀을 때만 하고, 결과는 session_state에 넣어둔 다음
+#   아래에서 그걸 보고 그리게 분리함. 그러면 rerun 돼도 안 없어짐.
 if data_file and analyze_btn:
 
     # 불용어 반영
@@ -96,9 +101,6 @@ if data_file and analyze_btn:
     stopwords = None
     if "stopwords" in st.session_state:
         stopwords = [w.strip() for w in st.session_state.stopwords.split(",") if w.strip()]
-
-    # 한글 폰트 경로 설정
-    font_path = os.path.join(os.getcwd(), "SEOULHANGANGB.TTF")
 
     # 파일에서 데이터 읽어오기
     corpus = ta.load_corpus_from_csv(data_file, column_name)
@@ -121,9 +123,20 @@ if data_file and analyze_btn:
         # 단어 빈도 계산
         counter = ta.analyze_word_freq(tokens)
 
+    # 결과만 세션에 보관 (tokens 전체는 무거우니 개수만 저장)
+    st.session_state["analysis"] = {"counter": counter, "total": len(tokens)}
+
+# 저장된 결과가 있으면 어떤 rerun이든 다시 그려줌
+if "analysis" in st.session_state:
+    result = st.session_state["analysis"]
+    counter = result["counter"]
+
+    # 한글 폰트 경로 설정 (그릴 때만 필요)
+    font_path = os.path.join(os.getcwd(), "SEOULHANGANGB.TTF")
+
     # 분석 결과 요약 표시
     col1, col2 = st.columns(2)
-    col1.metric("총 단어 수", len(tokens))
+    col1.metric("총 단어 수", result["total"])
     col2.metric("고유 단어 수", len(counter))
 
     if show_bar:
